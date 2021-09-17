@@ -14,9 +14,10 @@ from django.http import HttpResponse
 from .forms import LoginForm, SignUpForm
 from authentication.models import mobile
 from authentication.models import business
-from authentication.forms import mobile
-def mobile(request):
-    form = mobile(request.POST or None)
+from authentication.forms import MobileLoginForm
+
+def mobile_login(request):
+    form = MobileLoginForm(request.POST or None)
 
     msg = None
 
@@ -24,17 +25,18 @@ def mobile(request):
 
         if form.is_valid():
            phone = form.cleaned_data.get("phone")
-           
+
            user = authenticate(phone=phone)
            if user is not None:
                 login(request, user)
                 return redirect("/")
-           else:    
-                msg = 'Invalid credentials'    
+           else:
+                msg = 'Invalid credentials'
         else:
-            msg = 'Error validating the form'    
+            msg = 'Error validating the form'
 
-    return render(request, "accounts/login.html", {"form": form, "msg" : msg})
+    return render(request, "accounts/mobile.html", {"form": form, "msg" : msg})
+
 def login_view(request):
     form = LoginForm(request.POST or None)
 
@@ -49,10 +51,10 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 return redirect("/")
-            else:    
-                msg = 'Invalid credentials'    
+            else:
+                msg = 'Invalid credentials'
         else:
-            msg = 'Error validating the form'    
+            msg = 'Error validating the form'
 
     return render(request, "accounts/login.html", {"form": form, "msg" : msg})
 
@@ -71,11 +73,11 @@ def register_user(request):
 
             msg     = 'User created - please <a href="/login">login</a>.'
             success = True
-            
+
             #return redirect("/login/")
 
         else:
-            msg = 'Form is not valid'    
+            msg = 'Form is not valid'
     else:
         form = SignUpForm()
 
