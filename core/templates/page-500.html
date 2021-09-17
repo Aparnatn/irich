@@ -29,13 +29,14 @@
                 </p>
               </div>
               <div class="card-body">
-                <form role="form text-left" method="post" action="">
+                <form role="form text-left" method="POST" action="multipart/form-data">
                   
                   {% csrf_token %}
 
                   <label>Mobile</label>
                   <div class="mb-3">
-                   {{form.phone}}
+                    {{ form.phone }}
+    
                   </div>
                  
                  

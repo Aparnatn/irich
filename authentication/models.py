@@ -17,8 +17,8 @@ class Meta:
     model = mobile
     model = business
     fields = [
-          'sId'
-          'phone'
+          'sId',
+          'phone',
       ]
     fields = [
           

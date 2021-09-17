@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app', # Enable the inner app
     'authentication',
+    'phone_verify',
 
 ]
 
@@ -98,7 +99,19 @@ DATABASES = {
         "PORT": os.environ.get("SQL_PORT", "3306"),
     }
 }
-
+PHONE_VERIFICATION = {
+        'BACKEND': 'phone_verify.backends.twilio.TwilioBackend',
+        'TWILIO_SANDBOX_TOKEN':'123456',
+        'OPTIONS': {
+            'SID': 'fake',
+            'SECRET': 'fake',
+            'FROM': '9497204277'
+        },
+        'TOKEN_LENGTH': 6,
+        'MESSAGE': 'Welcome to {app}! Please use security code {otp} to proceed.',
+        'APP_NAME': 'Phone Verify',
+        'OTP_EXPIRATION_TIME': 3600  # In seconds only
+    }
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
