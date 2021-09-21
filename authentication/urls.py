@@ -1,17 +1,17 @@
-# -*- encoding: utf-8 -*-
-"""
-Copyright (c) 2019 - present AppSeed.us
-"""
-
+from authentication import views
 from django.urls import path
-from .views import login_view, register_user
-from authentication.views import mobile
-from django.contrib.auth.views import LogoutView
-
+from .views import Home
+from django.conf.urls import url
 urlpatterns = [
-    path('login/', login_view, name="login"),
-     path('login/', mobile, name="mobile"),
-    path('register/', register_user, name="register"),
+    path('home',views.Home,name="home"),
+    path('list',views.tablelist,name="list"),
+    url(r'^transactions$',views.transactionsApi),
+    url(r'^transactions/([0-9]+)$',views.transactionsApi),
+    # path('login/', login_view, name="login"),
+    # path('business/', business_details, name="business_details"),
+    # path('login', mobile_login, name="login"),
+    # path('register/', register_user, name="register"),
 
-    path("logout/", LogoutView.as_view(), name="logout")
+    # path("logout/", LogoutView.as_view(), name="logout")
 ]
+

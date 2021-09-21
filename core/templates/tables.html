@@ -71,6 +71,23 @@
           </div>
         </div>
       </div>
+      {% for data in movie %}
+ 
+      {{ data.category }}<br/>
+      {{ data.business_desc }}<br/>
+      {{ data.business_address }}<br/>
+      {{ data.account_holder }}<br/>
+      {{ data.account_number }}<br/>
+      {{ data.bank_name }}<br/>
+      {{ data.bsb }}<br/>
+      {{ data.Abin }}<br/>
+      {{ data.subcategory }}<br/>
+      {{ data.email }}<br/>
+      <br/>
+      <img src="{{MEDIA_ROOT}}{{ data.image1.url }}" width="120"/>
+       <hr/>
+   
+      {% endfor %}
       <div class="card-body pt-4 p-3">
         <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">Newest</h6>
         <ul class="list-group">

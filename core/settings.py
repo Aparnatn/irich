@@ -33,10 +33,12 @@ INSTALLED_APPS = [
     'app', # Enable the inner app
     'authentication',
     'phone_verify',
-
+    'rest_framework',
+    'corsheaders',
 ]
-
+CORS_ORIGIN_ALLOW_ALL = True
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -92,7 +94,7 @@ DATABASES = {
     # }
     "default": {
         "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.mysql"),
-        "NAME": os.environ.get("SQL_DATABASE", "django"),
+        "NAME": os.environ.get("SQL_DATABASE", "businessunit_db"),
         "USER": os.environ.get("SQL_USER", "root"),
         "PASSWORD": os.environ.get("SQL_PASSWORD", ""),
         "HOST": os.environ.get("SQL_HOST", "localhost"),
@@ -149,12 +151,15 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-STATIC_ROOT = os.path.join(CORE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 
 # Extra places for collectstatic to find static files.
-STATICFILES_DIRS = (
-    os.path.join(CORE_DIR, 'core/static'),
-)
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, 'core/static'),
+# )
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 #############################################################
 #############################################################

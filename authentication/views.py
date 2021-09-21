@@ -15,108 +15,66 @@ from django.forms.utils import ErrorList
 from django.http import HttpResponse
 from .forms import LoginForm, SignUpForm
 from authentication.models import mobile
-from authentication.models import business
-from authentication.forms import mobile
-def mobile(request):
-    form = mobile(request.POST or None)
+from authentication.models import business_details
+from authentication.forms import MobileLoginForm,BusinessForm
+from .forms import business_detailsForm
+from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.parsers import JSONParser
+from django.http.response import JsonResponse
+from authentication.models import transactions
+from rest_framework import serializers
+from serializers import TransactionsSerializer
 
-    msg = None
+from django.core.files.storage import default_storage
 
-    if request.method == "POST":
 
-        if form.is_valid():
-           phone = form.cleaned_data.get("phone")
-           
-           user = authenticate(phone=phone)
-           if user is not None:
-                login(request, user)
-                return redirect("/")
-           else:    
-                msg = 'Invalid credentials'    
-        else:
-            msg = 'Error validating the form'    
 
-    return render(request, "accounts/login.html", {"form": form, "msg" : msg})
-def update_view(request, id):
-    # dictionary for initial data with
-    # field names as keys
-    context ={}
- 
-    # fetch the object related to passed id
-    obj = get_object_or_404(mobile, id = id)
- 
-    # pass the object as instance in form
-    form = mobile(request.POST or None, instance = obj)
- 
-    # save the data from the form and
-    # redirect to detail_view
-    if form.is_valid():
-        form.save()
-        return HttpResponseRedirect("/"+id)
- 
-    # add form dictionary to context
-    context["form"] = form
- 
-    return render(request, "update_view.html", context)
-def delete_view(request, id):
-    # dictionary for initial data with
-    # field names as keys
-    context ={}
- 
-    # fetch the object related to passed id
-    obj = get_object_or_404(mobile, id = id)
- 
- 
-    if request.method =="POST":
-        # delete object
-        obj.delete()
-        # after deleting redirect to
-        # home page
-        return HttpResponseRedirect("/")
- 
-    return render(request, "delete_view.html", context)
-def login_view(request):
-    form = LoginForm(request.POST or None)
+def Home(request):
+        if request.method == "POST":
+            movie_form = business_detailsForm(request.POST)
+            if movie_form.is_valid():
+              movie_form.save()
+              messages.success(request, ('Your movie was successfully added!'))
+            else:
+             messages.error(request, 'Error saving form')
+             return redirect("home")
+        movie_form = business_detailsForm()
+        movies = business_details.objects.all()
+        context={"movie_form":movie_form,"movie":movies}
+        return render(request,"business.html",context)
 
-    msg = None
 
-    if request.method == "POST":
+def tablelist(request):
+     movies = business_details.objects.all()
+     context={"movie":movies}
+     for i in movies:
+       print(i.image1)
 
-        if form.is_valid():
-            username = form.cleaned_data.get("username")
-            password = form.cleaned_data.get("password")
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect("/")
-            else:    
-                msg = 'Invalid credentials'    
-        else:
-            msg = 'Error validating the form'    
+     return render(request,"tables.html",context)
 
-    return render(request, "accounts/login.html", {"form": form, "msg" : msg})
-
-def register_user(request):
-
-    msg     = None
-    success = False
-
-    if request.method == "POST":
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get("username")
-            raw_password = form.cleaned_data.get("password1")
-            user = authenticate(username=username, password=raw_password)
-
-            msg     = 'User created - please <a href="/login">login</a>.'
-            success = True
-            
-            #return redirect("/login/")
-
-        else:
-            msg = 'Form is not valid'    
-    else:
-        form = SignUpForm()
-
-    return render(request, "accounts/register.html", {"form": form, "msg" : msg, "success" : success })
+@csrf_exempt
+def transactionsApi(request,id=0):
+    if request.method=='GET':
+        transactions = Transactions.objects.all()
+        transactions_serializer=TransactionsSerializer(transactions,many=True)
+        return JsonResponse(transactions_serializer.data,safe=False)
+    elif request.method=='POST':
+        transactions_data=JSONParser().parse(request)
+        transactions_serializer=TransactionsSerializer(data=transactions_data)
+        if transactions_serializer.is_valid():
+            transactions_serializer.save()
+            return JsonResponse("Added Successfully",safe=False)
+        return JsonResponse("Failed to Add",safe=False)
+    elif request.method=='PUT':
+        transactions_data=JSONParser().parse(request)
+        transactions=TransactionsSerializer.objects.get(transactionsId=transactions_data['transactionsId'])
+        transactions_serializer=TransactionsSerializer(transactions,data=transactions_data)
+        if transactions_serializer.is_valid():
+            transactions_serializer.save()
+            return JsonResponse("Updated Successfully",safe=False)
+        return JsonResponse("Failed to Update")
+    elif request.method=='DELETE':
+        transactions=TransactionsSerializer.objects.get(transactionsId=id)
+        transactions.delete()
+        return JsonResponse("Deleted Successfully",safe=False)
