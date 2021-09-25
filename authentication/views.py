@@ -25,6 +25,32 @@ from django.http.response import JsonResponse
 from authentication.models import transactions
 from rest_framework import serializers
 from serializers import TransactionsSerializer
+from notifications.signals import notify
+
+
+def index(request):
+    try:
+        users = User.objects.all()
+        print(request.user)
+        user = User.objects.get(username=request.user)
+        return render(request, 'index.html', {'users': users, 'user': user})
+    except Exception as e:
+        print(e)
+        return HttpResponse("Please login from admin site for sending messages from this view")
+
+
+def message(request):
+    try:
+        if request.method == 'POST':
+            sender = User.objects.get(username=request.user)
+            receiver = User.objects.get(id=request.POST.get('user_id'))
+            notify.send(sender, recipient=receiver, verb='Message', description=request.POST.get('message'))
+            return redirect('index')
+        else:
+            return HttpResponse("Invalid request")
+    except Exception as e:
+        print(e)
+        return HttpResponse("Please login from admin site for sending messages")
 
 from django.core.files.storage import default_storage
 
@@ -53,28 +79,3 @@ def tablelist(request):
 
      return render(request,"tables.html",context)
 
-@csrf_exempt
-def transactionsApi(request,id=0):
-    if request.method=='GET':
-        transactions = Transactions.objects.all()
-        transactions_serializer=TransactionsSerializer(transactions,many=True)
-        return JsonResponse(transactions_serializer.data,safe=False)
-    elif request.method=='POST':
-        transactions_data=JSONParser().parse(request)
-        transactions_serializer=TransactionsSerializer(data=transactions_data)
-        if transactions_serializer.is_valid():
-            transactions_serializer.save()
-            return JsonResponse("Added Successfully",safe=False)
-        return JsonResponse("Failed to Add",safe=False)
-    elif request.method=='PUT':
-        transactions_data=JSONParser().parse(request)
-        transactions=TransactionsSerializer.objects.get(transactionsId=transactions_data['transactionsId'])
-        transactions_serializer=TransactionsSerializer(transactions,data=transactions_data)
-        if transactions_serializer.is_valid():
-            transactions_serializer.save()
-            return JsonResponse("Updated Successfully",safe=False)
-        return JsonResponse("Failed to Update")
-    elif request.method=='DELETE':
-        transactions=TransactionsSerializer.objects.get(transactionsId=id)
-        transactions.delete()
-        return JsonResponse("Deleted Successfully",safe=False)

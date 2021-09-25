@@ -25,7 +25,7 @@ class business_details(models.Model):
     Account_holder=models.CharField(max_length=50)
     account_number=models.CharField(max_length=50)
     
-    image1= models.ImageField(upload_to='images',blank= True,null=True)
+    image1= models.ImageField(upload_to='images')
 class transactions(models.Model):
     transactionId = models.AutoField(primary_key=True)
     transactionName = models.CharField(max_length=500)
